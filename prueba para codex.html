@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nino García – App interactiva</title>
+
+  <!-- Fuente pixel para títulos -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+  />
+
+  <!-- React + ReactDOM desde CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel para usar JSX en el navegador (modo demo) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, #020617 0, #050118 45%, #000000 100%);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1280px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 2px solid #4b5563;
+      background: rgba(3, 7, 18, 0.96);
+      box-shadow: 0 0 32px rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      padding: 14px 18px 14px;
+      min-height: calc(100vh - 20px);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #1f2933;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-square {
+      width: 56px;
+      height: 56px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #22d3ee, #a855f7, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.8);
+      flex-shrink: 0;
+    }
+
+    .logo-square span {
+      font-size: 30px;
+    }
+
+    .header-text h1 {
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .header-text p {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+      max-width: 520px;
+    }
+
+    .audio-widget {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    main {
+      flex: 1;
+      margin-top: 10px;
+      display: flex;
+    }
+
+    .page {
+      flex: 1;
+      border-radius: 4px;
+      border: 2px solid #111827;
+      background:
+        linear-gradient(180deg, #020617 0%, #020617 65%, #000000 100%);
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0; /* para flex */
+    }
+
+    h2.page-title {
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.20em;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    /* -------- Botón volver -------- */
+
+    .back-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .back-btn {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 2px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-1px);
+      border-color: #22d3ee;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+    }
+
+    /* ====== INICIO ====== */
+
+    .inicio-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1.3fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    @media (max-width: 880px) {
+      .inicio-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .inicio-title {
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .inicio-subtitle {
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .inicio-sub {
+      font-size: 14px;
+      color: #e5e7eb;
+      line-height: 1.6;
+    }
+
+    .inicio-meta {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    .inicio-meta span {
+      display: block;
+    }
+
+    .inicio-meta small {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .inicio-cta-btn {
+      margin-top: 16px;
+      font-size: 12px;
+      padding: 9px 18px;
+      border-radius: 4px;
+      border: 2px solid #f97316;
+      background: linear-gradient(135deg, #f97316, #7c2d12);
+      color: #0b1120;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      box-shadow: 0 0 22px rgba(249, 115, 22, 0.8);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .inicio-cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(249, 115, 22, 0.95);
+    }
+
+    .inicio-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .inicio-portrait {
+      width: min(360px, 70vw);
+      border-radius: 4px;
+      border: 4px solid #e5e7eb;
+      box-shadow: 0 0 26px rgba(148, 163, 184, 0.9);
+      image-rendering: pixelated;
+      background: #000;
+    }
+
+    .inicio-tagline {
+      font-size: 12px;
+      color: #e5e7eb;
+      text-align: center;
+      max-width: 360px;
+    }
+
+    /* ====== MAPA / ESFERAS ====== */
+
+    .mapa-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    @media (max-width: 880px) {
+      .mapa-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mapa-left-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .mapa-left-text {
+      font-size: 13px;
+      color: #d1d5db;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .mapa-left-note {
+      font-size: 11px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    .mapa-main {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .mapa-center {
+      width: 150px;
+      height: 150px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #020617, #111827);
+      border: 2px solid #60a5fa;
+      box-shadow: 0 0 22px rgba(96, 165, 250, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-align: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mapa-center span:first-child {
+      font-size: 30px;
+    }
+
+    .mapa-spheres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      max-width: 380px;
+      justify-content: center;
+    }
+
+    .sphere {
+      width: 110px;
+      height: 110px;
+      border-radius: 4px;
+      border: 2px solid #6b7280;
+      background: radial-gradient(circle at 20% 10%, #38bdf8, #020617);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      text-align: center;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease;
+    }
+
+    .sphere span:first-child {
+      font-size: 20px;
+    }
+
+    .sphere:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.9);
+      border-color: #f97316;
+      background: radial-gradient(circle at 80% 0, #fb7185, #020617);
+    }
+
+    /* ====== BIO / TIMELINE ====== */
+
+    .bio-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .panel-sub {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      max-width: 720px;
+    }
+
+    .panel-box {
+      border-radius: 4px;
+      border: 2px solid #1f2937;
+      background: #020617;
+      padding: 12px 14px;
+      min-height: 120px;
+    }
+
+    .eras-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .era-pill {
+      border-radius: 4px;
+      border: 2px solid #4b5563;
+      background: #020617;
+      padding: 6px 10px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: #d1d5db;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .era-pill span {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .era-pill strong {
+      font-weight: 600;
+    }
+
+    .era-pill.active {
+      border-color: #f97316;
+      box-shadow: 0 0 14px rgba(249, 115, 22, 0.7);
+      background: #111827;
+      transform: translateY(-1px);
+    }
+
+    .era-summary {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+
+    .era-meta {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9ca3af;
+      line-height: 1.4;
+    }
+
+    .focus-card {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      border: 2px solid #4b5563;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.35), #020617);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .focus-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .focus-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .focus-note {
+      font-size: 11px;
+      color: #f9fafb;
+    }
+
+    .timeline-wrapper {
+      display: flex;
+      gap: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .timeline-wrapper {
+        flex-direction: column;
+      }
+    }
+
+    .timeline-axis {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 6px;
+    }
+
+    .timeline-line {
+      width: 3px;
+      flex: 1;
+      border-radius: 999px;
+      background: linear-gradient(to bottom, #22d3ee, #a855f7, #f97316);
+      opacity: 0.9;
+    }
+
+    .timeline-node {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #22d3ee;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 6px 0;
+      cursor: pointer;
+      font-size: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .timeline-node.active {
+      transform: scale(1.15);
+      border-color: #f97316;
+      box-shadow: 0 0 14px rgba(249, 115, 22, 0.9);
+      background: radial-gradient(circle at 30% 20%, #22d3ee, #a855f7, #f97316);
+      color: #020617;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .event-year {
+      font-size: 12px;
+      color: #93c5fd;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 4px;
+    }
+
+    .event-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .event-description {
+      font-size: 13px;
+      color: #e5e7eb;
+      margin-bottom: 8px;
+      line-height: 1.55;
+    }
+
+    .event-tagline {
+      font-size: 11px;
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .event-list {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .event-badge {
+      padding: 4px 7px;
+      border-radius: 4px;
+      border: 1px dashed rgba(148, 163, 184, 0.9);
+    }
+
+    /* ====== OBRA ====== */
+
+    .obra-grid {
+      margin-top: 8px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .obra-section {
+      border-radius: 4px;
+      border: 2px solid #1f2937;
+      background: #020617;
+      padding: 10px 12px;
+    }
+
+    .obra-block-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .obra-text {
+      font-size: 13px;
+      color: #e5e7eb;
+      line-height: 1.55;
+    }
+
+    .obra-small {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .curious-highlight {
+      background: rgba(56, 189, 248, 0.12);
+      border-bottom: 1px dashed rgba(56, 189, 248, 0.9);
+      cursor: help;
+    }
+
+    /* ====== DISCOGRAFÍA ====== */
+
+    .disco-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 880px) {
+      .disco-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .disco-card {
+      border-radius: 4px;
+      border: 2px solid #1f2937;
+      background: #020617;
+      padding: 10px 12px;
+      font-size: 13px;
+      min-height: 150px;
+    }
+
+    .disco-card h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .disco-list {
+      list-style: none;
+      font-size: 12px;
+      color: #e5e7eb;
+      line-height: 1.4;
+    }
+
+    .disco-list li {
+      margin-bottom: 4px;
+    }
+
+    .disco-note {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* ====== RECURSOS ====== */
+
+    .recursos-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1.4fr;
+      gap: 18px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 840px) {
+      .recursos-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rec-block-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .rec-list {
+      font-size: 12px;
+      color: #e5e7eb;
+      padding-left: 16px;
+      line-height: 1.5;
+    }
+
+    .rec-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    /* ====== Cita / referencias al pie ====== */
+
+    .quote-block {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed #4b5563;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .quote-block strong {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 10px;
+    }
+
+    .quote-block ul {
+      margin-top: 6px;
+      padding-left: 16px;
+      line-height: 1.4;
+    }
+
+    footer {
+      margin-top: 8px;
+      font-size: 10px;
+      color: #9ca3af;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-top: 2px solid #111827;
+      padding-top: 6px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: radial-gradient(circle at 30% 20%, #4ade80, #22c55e, #166534);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // =========================
+    // Datos
+    // =========================
+
+    const erasData = [
+      {
+        id: "formacion",
+        label: "Infancia y formación",
+        years: "1957–1974",
+        emoji: "🎹",
+        summary:
+          "Nino nace en Cerro Alegre, en una familia donde política y arte conviven. El piano entra tempranamente en la casa y se vuelve refugio y conflicto a la vez.",
+        meta:
+          "Niño prodigio en un entorno tenso: padre abogado socialista, disciplina estricta y una abuela que apuesta por la música.",
+        focusWork: "Primeros años de piano",
+        focusNote:
+          "Antes de los diez ya toca Mozart casi de memoria; la intuición musical aparece antes que la institucionalidad.",
+        events: [
+          {
+            year: "1957",
+            title: "Nacimiento en Cerro Alegre",
+            description:
+              "Nino García nace en Valparaíso, en un hogar de clase media profesional donde la cultura y la conversación política son parte del día a día.",
+            tagline: "Infancia entre piano, disciplina y discusión política.",
+            badges: ["Valparaíso", "Clase media", "Piano en casa"],
+          },
+          {
+            year: "Década de 1960",
+            title: "La orquesta doméstica",
+            description:
+              "Los hermanos forman conjuntos con bidones y ollas hasta que la abuela Adelina decide tomárselo en serio y les regala un piano. Nino avanza con rapidez notable.",
+            tagline: "El juego se convierte en formación musical real.",
+            badges: ["Abuela Adelina", "Profesora de piano", "Niño prodigio"],
+          },
+          {
+            year: "Adolescencia temprana",
+            title: "Orquesta Sinfónica de Viña del Mar",
+            description:
+              "A los catorce entra como pianista a la orquesta, tocando repertorio exigente y ensayando con disciplina profesional.",
+            tagline: "De la sala de estar a la sala de conciertos.",
+            badges: ["Orquesta juvenil", "Repertorio sinfónico"],
+          },
+        ],
+      },
+      {
+        id: "balada_tv",
+        label: "Balada, TV y fusión",
+        years: "1975–1984",
+        emoji: "📺",
+        summary:
+          "Nino se mueve entre orquestas, proyectos de fusión como Hindemith 76 y el circuito de balada y televisión, desarrollando una escritura armónica muy propia.",
+        meta:
+          "La figura pública del baladista convive con el pianista de cámara y el arreglador sofisticado.",
+        focusWork: "“Sin razón” y baladas tempranas",
+        focusNote:
+          "La armonía y el piano se alejan del estándar de la balada radial, incluso en formatos comerciales.",
+        events: [
+          {
+            year: "Finales de 1970",
+            title: "Hindemith 76 y música fusión",
+            description:
+              "Se integra a un sexteto que cruza jazz, folclor latinoamericano y procedimientos contemporáneos, con cambios de métrica y texturas densas.",
+            tagline: "El piano como motor rítmico y superficie de color.",
+            badges: ["Jazz fusión", "Música contemporánea"],
+          },
+          {
+            year: "1979",
+            title: "“Sin razón” y el Festival OTI",
+            description:
+              "Su canción gana la competencia chilena del OTI y viaja a representarla al extranjero, marcando un primer gran momento de visibilidad masiva.",
+            tagline: "La balada ninonesca entra al circuito internacional.",
+            badges: ["OTI", "Balada", "Compositor-intérprete"],
+          },
+          {
+            year: "Comienzos de 1980",
+            title: "Balada televisiva y arreglos",
+            description:
+              "Trabaja en orquestas estables, compone y arregla para otros artistas, participa en programas de TV y graba baladas como “Sé que no me perteneces” o “Entre paréntesis”.",
+            tagline: "Visibilidad masiva con un lenguaje armónico poco habitual.",
+            badges: ["Televisión", "Arreglista", "Baladista"],
+          },
+        ],
+      },
+      {
+        id: "camotazo",
+        label: "Universidad intervenida y Camotazo",
+        years: "1985–1989",
+        emoji: "📼",
+        summary:
+          "La dictadura, el conflicto universitario y la violencia estatal desplazan su foco hacia la resistencia cultural y los casetes militantes.",
+        meta:
+          "Nino se distancia de la TV, se acerca a poblaciones y movimientos sociales y compone “La Paz y la Guerra”.",
+        focusWork: "“La Paz y la Guerra”",
+        focusNote:
+          "Balada ninonesca que cruza piano docto, canción romántica y memoria de la universidad intervenida.",
+        events: [
+          {
+            year: "1987",
+            title: "Conflicto de Las Encinas",
+            description:
+              "En un acto solidario en la Universidad de Chile, es recibido con pifias por sectores que lo asocian al mundo televisivo. Se retira diciendo “no soy amarillo, compañeros”.",
+            tagline: "Herida simbólica: no cabe del todo en ninguna etiqueta.",
+            badges: ["Universidad intervenida", "Conflicto político"],
+          },
+          {
+            year: "1987",
+            title: "Atentado contra María Paz Santibáñez",
+            description:
+              "Acompaña el proceso de recuperación de la pianista baleada, le dedica un arreglo de “El derecho de vivir en paz” y comienza a trabajar en “La Paz y la Guerra”.",
+            tagline: "El piano como herramienta de rehabilitación y memoria.",
+            badges: ["Derechos humanos", "Víctor Jara", "Arreglo pianístico"],
+          },
+          {
+            year: "1988",
+            title: "Santa Laura y Camotazo",
+            description:
+              "En el estadio Santa Laura, tras la intervención de María Paz, estrena “La Paz y la Guerra”. La canción entra al casete militante Camotazo, ligado a radios y actos por los derechos humanos.",
+            tagline: "La balada romántica se vuelve canto universitario y militante.",
+            badges: ["Radio Umbral", "Casete militante", "Estadio"],
+          },
+          {
+            year: "Finales de 1980",
+            title: "Conflicto con la TV estatal",
+            description:
+              "Interpreta “Elegía a un poeta ausente” dedicada a Víctor Jara en TVN; el fragmento es recortado y se le expulsa de los estudios.",
+            tagline: "Censura tardía en el medio que antes lo había visibilitado.",
+            badges: ["TVN", "Censura", "Víctor Jara"],
+          },
+        ],
+      },
+      {
+        id: "ultimos",
+        label: "Últimos años y legado",
+        years: "1990–post 1998",
+        emoji: "🌒",
+        summary:
+          "Entre la precariedad y la creatividad extrema, Nino vive en la población La Victoria, compone música sinfónica y enfrenta problemas de salud mental.",
+        meta:
+          "Su muerte abre una larga tarea de rescate realizada por músicos, investigadoras y afectos.",
+        focusWork: "Obras sinfónicas tardías",
+        focusNote:
+          "En un periodo breve compone alrededor de diez piezas para orquesta y cámara, muchas de ellas inéditas durante años.",
+        events: [
+          {
+            year: "Comienzos de 1990",
+            title: "Vida al límite en La Victoria",
+            description:
+              "Junto a María Eugenia Zúñiga vive en la población, participa en actividades comunitarias y vuelve incluso a cantar en micros para sobrevivir.",
+            tagline: "Compromiso cotidiano y precariedad económica.",
+            badges: ["Población La Victoria", "Trabajo de base"],
+          },
+          {
+            year: "1991",
+            title: "Crisis y grafiti existencial",
+            description:
+              "Tras una intoxicación con tranquilizantes, su familia encuentra el techo del departamento cubierto por la frase: “la vida es la hija bastarda de la existencia”.",
+            tagline: "La escritura como síntesis de una crisis profunda.",
+            badges: ["Salud mental", "Borderline", "Grafiti"],
+          },
+          {
+            year: "Mediados de 1990",
+            title: "Música sinfónica y jingles",
+            description:
+              "María Eugenia lo “reconecta” con la música. Compone alrededor de diez obras sinfónicas y trabaja un tiempo en una productora de jingles antes de renunciar.",
+            tagline: "Tensión entre creación propia y música por encargo.",
+            badges: ["Obras orquestales", "Productora de jingles"],
+          },
+          {
+            year: "1998 y después",
+            title: "Muerte y rescate",
+            description:
+              "Nino se quita la vida en 1998. Su despedida reúne a orquestas en La Victoria. Años después, familiares, colegas y proyectos de investigación rescatan y difunden su obra.",
+            tagline: "Del duelo al trabajo de memoria colectiva.",
+            badges: ["Orquesta", "Rescate de obra", "Investigación"],
+          },
+        ],
+      },
+    ];
+
+    const discografia = {
+      hindemith: [
+        "Proyecto Hindemith 76 (repertorio fusión).",
+        "Piezas instrumentales con cruces jazz–contemporáneo.",
+      ],
+      popular: [
+        "“Sin razón” (OTI Chile, 1979).",
+        "“Sé que no me perteneces”.",
+        "“Entre paréntesis”.",
+        "“La Paz y la Guerra” (casete Camotazo).",
+        "“Elegía a un poeta ausente” (dedicada a Víctor Jara).",
+      ],
+      docta: [
+        "Obras sinfónicas tardías (ciclo de alrededor de 10 piezas).",
+        "Arreglo de “El derecho de vivir en paz” para piano.",
+      ],
+    };
+
+    // =========================
+    // Componentes
+    // =========================
+
+    function BackgroundAudio() {
+      return (
+        <div className="audio-widget">
+          <iframe
+            title="La Guerra y la Paz digital – SoundCloud"
+            width="260"
+            height="80"
+            scrolling="no"
+            frameBorder="no"
+            allow="autoplay"
+            src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2226463964&color=%23000000&auto_play=true&loop=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false&show_artwork=false"
+          ></iframe>
+          <div>
+            smvn. “La Guerra y la Paz digital”. <em>SoundCloud</em>.
+          </div>
+        </div>
+      );
+    }
+
+    // ------ Página INICIO ------
+
+    function InicioPage({ goToMap }) {
+      return (
+        <div className="page">
+          <div className="inicio-layout">
+            <div>
+              <div className="inicio-title">Nino vive</div>
+              <div className="inicio-subtitle">
+                Biografía musical y política interactiva
+              </div>
+              <p className="inicio-sub">
+                Este proyecto nace a raíz del ramo de Taller de Investigación y
+                Análisis de la carrera de Teoría de la Música de la Universidad
+                de Chile, impartido por el Dr. Cristián Guerra.
+              </p>
+              <div className="inicio-meta">
+                <span>Año 2025.</span>
+                <span>Idea por Luciano Vásquez y Sebastián Valladares.</span>
+                <small>
+                  Una app para recorrer la biografía, escuchar, leer y pensar la
+                  obra de Nino García desde distintas esferas.
+                </small>
+              </div>
+              <button className="inicio-cta-btn" onClick={goToMap}>
+                Entrar
+              </button>
+            </div>
+            <div className="inicio-right">
+              <img
+                src="nino-8bit.png"
+                alt="Retrato 8-bit de Nino García"
+                className="inicio-portrait"
+              />
+              <div className="inicio-tagline">
+                Portada en clave 8-bit: un retrato pixelado como puerta de
+                entrada a una biografía musical y política.
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ------ Página MAPA / ESFERAS ------
+
+    function MapaPage({ goToSection }) {
+      return (
+        <div className="page">
+          <h2 className="page-title">Esferas de conocimiento</h2>
+          <div className="mapa-layout">
+            <div>
+              <div className="mapa-left-title">
+                Menú interactivo: ¿por dónde entrar a Nino?
+              </div>
+              <p className="mapa-left-text">
+                Cada esfera abre un eje del proyecto: biografía, una obra clave,
+                la organización de la discografía y los recursos que sostienen
+                la investigación.
+              </p>
+              <p className="mapa-left-note">
+                Más adelante se pueden sumar nuevas esferas (documentos,
+                entrevistas, partituras, etc.). Por ahora, pensamos este mapa
+                como un “menú de Nino y la canción”.
+              </p>
+            </div>
+            <div className="mapa-main">
+              <div className="mapa-center">
+                <span>🎼</span>
+                <span>Nino García</span>
+                <span style={{ fontSize: "9px", color: "#9ca3af" }}>
+                  Esferas de navegación
+                </span>
+              </div>
+              <div className="mapa-spheres">
+                <button className="sphere" onClick={() => goToSection("bio")}>
+                  <span>📜</span>
+                  <span>Biografía</span>
+                </button>
+                <button className="sphere" onClick={() => goToSection("obra")}>
+                  <span>🎹</span>
+                  <span>La Paz y la Guerra</span>
+                </button>
+                <button className="sphere" onClick={() => goToSection("disco")}>
+                  <span>📀</span>
+                  <span>Discografía</span>
+                </button>
+                <button
+                  className="sphere"
+                  onClick={() => goToSection("recursos")}
+                >
+                  <span>📚</span>
+                  <span>Recursos</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="quote-block">
+            <strong>Referencias</strong>
+            <ul>
+              <li>
+                Vásquez, Luciano, y Sebastián Valladares.{" "}
+                <em>“La Paz y la Guerra”: Informe final</em>. Universidad de
+                Chile, 2025.
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // ------ BIO / TIMELINE ------
+
+    function EraPanel({ era }) {
+      return (
+        <>
+          <div className="era-summary">{era.summary}</div>
+          <div className="era-meta">
+            {era.years} • {era.meta}
+          </div>
+          <div className="focus-card">
+            <div className="focus-icon">{era.emoji}</div>
+            <div>
+              <div className="focus-title">
+                Foco de esta etapa: {era.focusWork}
+              </div>
+              <div className="focus-note">{era.focusNote}</div>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    function TimelinePanel({ era }) {
+      const [activeIndex, setActiveIndex] = React.useState(0);
+
+      React.useEffect(() => {
+        setActiveIndex(0);
+      }, [era.id]);
+
+      const event = era.events[activeIndex];
+
+      return (
+        <div className="timeline-wrapper">
+          <div className="timeline-axis">
+            {era.events.map((ev, index) => (
+              <div
+                key={ev.year + ev.title}
+                className={
+                  "timeline-node " + (index === activeIndex ? "active" : "")
+                }
+                onClick={() => setActiveIndex(index)}
+                title={ev.year}
+              >
+                <span>{index + 1}</span>
+              </div>
+            ))}
+            <div className="timeline-line" />
+          </div>
+          <div className="timeline-content">
+            <div className="event-year">{event.year}</div>
+            <div className="event-title">{event.title}</div>
+            <div className="event-description">{event.description}</div>
+            <div className="event-tagline">“{event.tagline}”</div>
+            <div className="event-list">
+              {event.badges.map((b) => (
+                <span key={b} className="event-badge">
+                  {b}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function BioPage({ goBack }) {
+      const [selectedEraId, setSelectedEraId] = React.useState("formacion");
+      const selectedEra = erasData.find((e) => e.id === selectedEraId);
+
+      return (
+        <div className="page">
+          <div className="back-row">
+            <button className="back-btn" onClick={goBack}>
+              ⬅ Volver a las esferas
+            </button>
+          </div>
+          <h2 className="page-title">Biografía / Línea de tiempo</h2>
+          <p className="panel-sub">
+            Cuatro etapas para recorrer una vida que se mueve entre el piano
+            sinfónico, la balada televisiva, la resistencia cultural y las
+            obras sinfónicas tardías.
+          </p>
+          <div className="bio-layout">
+            <div className="panel-box">
+              <div className="eras-row">
+                {erasData.map((era) => (
+                  <button
+                    key={era.id}
+                    className={
+                      "era-pill " + (era.id === selectedEraId ? "active" : "")
+                    }
+                    onClick={() => setSelectedEraId(era.id)}
+                  >
+                    <strong>{era.label}</strong>
+                    <span>{era.years}</span>
+                  </button>
+                ))}
+              </div>
+              <EraPanel era={selectedEra} />
+            </div>
+            <div className="panel-box">
+              <TimelinePanel era={selectedEra} />
+            </div>
+          </div>
+          <div className="quote-block">
+            <strong>Referencias</strong>
+            <ul>
+              <li>
+                Vásquez, Luciano, y Sebastián Valladares.{" "}
+                <em>“La Paz y la Guerra”: Informe final</em>. Universidad de
+                Chile, 2025.
+              </li>
+              <li>
+                “Inolvidables: Nino García.” <em>Canal 13</em>, 2002. Programa
+                de televisión.
+              </li>
+              <li>
+                “Inolvidables (2002).” <em>13.cl</em>, Canal 13,{" "}
+                <a
+                  href="https://www.13.cl/rec/blog/inolvidables-2002"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#93c5fd" }}
+                >
+                  www.13.cl/rec/blog/inolvidables-2002
+                </a>
+                .
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // ------ OBRA: LA PAZ Y LA GUERRA ------
+
+    function ObraPage({ goBack }) {
+      return (
+        <div className="page">
+          <div className="back-row">
+            <button className="back-btn" onClick={goBack}>
+              ⬅ Volver a las esferas
+            </button>
+          </div>
+          <h2 className="page-title">Obra: “La Paz y la Guerra”</h2>
+          <p className="panel-sub">
+            Página dedicada a la canción que articula paz y guerra, teclas y
+            gatillo, balada romántica y memoria política de la universidad
+            intervenida.
+          </p>
+          <div className="obra-grid">
+            <div className="obra-section">
+              <div className="obra-block-title">Resumen</div>
+              <p className="obra-text">
+                “La Paz y la Guerra” es una balada ninonesca compuesta en el
+                contexto de la universidad intervenida y de las luchas por los
+                derechos humanos a fines de la dictadura. La canción cruza
+                lenguaje de balada romántica con una escritura pianística
+                cercana a la música de cámara y una letra fuertemente política.
+              </p>
+              <p className="obra-small">
+                En calma, funciona como balada íntima; en estadio, como canto
+                colectivo y memoria universitaria.
+              </p>
+            </div>
+
+            <div className="obra-section">
+              <div className="obra-block-title">Forma y armonía</div>
+              <p className="obra-text">
+                La pieza se organiza de manera general como{" "}
+                <span
+                  className="curious-highlight"
+                  title="Dos estrofas similares (A y A’), dos estribillos (B y B’) y una coda final."
+                >
+                  A–A’–B–B’ + coda
+                </span>{" "}
+                , con estrofas en Fa mayor y estribillos en Re mayor. El piano
+                trabaja con arpegios, diseños ligados y acordes amplios que le
+                dan un carácter{" "}
+                <span
+                  className="curious-highlight"
+                  title="El acompañamiento pianístico desarrolla un discurso propio, no solo funcional."
+                >
+                  casi camerístico
+                </span>{" "}
+                al acompañamiento.
+              </p>
+              <p className="obra-small">
+                Estos recursos la separan de la balada radial estándar y la
+                acercan a una canción–pieza, pensada también desde la escritura
+                instrumental.
+              </p>
+            </div>
+
+            <div className="obra-section">
+              <div className="obra-block-title">Texto y contexto político</div>
+              <p className="obra-text">
+                La letra articula pares opuestos: paz / guerra, teclas /
+                gatillo, arpegio / ráfaga, cultura / carreteras. Desde ahí, la
+                canción dialoga con el atentado contra María Paz Santibáñez, la
+                universidad intervenida y la cultura de resistencia que circula
+                en casetes como{" "}
+                <span
+                  className="curious-highlight"
+                  title="Casete militante asociado a espacios universitarios y radios ligadas a derechos humanos."
+                >
+                  Camotazo
+                </span>
+                .
+              </p>
+              <p className="obra-small">
+                En una misma pieza conviven la balada romántica y el canto
+                político, sin que una anule a la otra.
+              </p>
+            </div>
+
+            <div className="obra-section">
+              <div className="obra-block-title">Datos curiosos</div>
+              <ul className="work-list">
+                <li>
+                  Estrenada en el estadio Santa Laura, tras la intervención de
+                  María Paz Santibáñez.
+                </li>
+                <li>
+                  Circuló principalmente en formato casete, lejos del circuito
+                  de la industria fonográfica hegemónica.
+                </li>
+                <li>
+                  Su carácter de balada permite leerla como canción de amor y
+                  como alegato político al mismo tiempo.
+                </li>
+              </ul>
+              <p className="obra-small">
+                Piensa estos puntos como comentarios de margen: marcas que
+                ayudan a no perder de vista el contexto histórico de la canción.
+              </p>
+            </div>
+          </div>
+          <div className="quote-block">
+            <strong>Referencias</strong>
+            <ul>
+              <li>
+                Vásquez, Luciano, y Sebastián Valladares.{" "}
+                <em>“La Paz y la Guerra”: Informe final</em>. Universidad de
+                Chile, 2025.
+              </li>
+              <li>
+                smvn. “La Guerra y la Paz digital.” <em>SoundCloud</em>,{" "}
+                <a
+                  href="https://soundcloud.com/vampirino/la-guerra-y-la-paz-digital"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#93c5fd" }}
+                >
+                  soundcloud.com/vampirino/la-guerra-y-la-paz-digital
+                </a>
+                .
+              </li>
+              <li>
+                <em>Camotazo</em>. Casete militante, ca. 1988.
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // ------ DISCOGRAFÍA ------
+
+    function DiscografiaPage({ goBack }) {
+      return (
+        <div className="page">
+          <div className="back-row">
+            <button className="back-btn" onClick={goBack}>
+              ⬅ Volver a las esferas
+            </button>
+          </div>
+          <h2 className="page-title">Discografía / Obra por esferas</h2>
+          <p className="panel-sub">
+            Boceto de organización de la obra en tres grandes grupos. Más
+            adelante se pueden agregar enlaces a YouTube, archivos, partituras
+            y otros materiales.
+          </p>
+          <div className="disco-grid">
+            <div className="disco-card">
+              <h3>Hindemith / Fusión</h3>
+              <ul className="disco-list">
+                {discografia.hindemith.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+              <p className="disco-note">
+                Aquí se podrían incorporar registros de Hindemith 76, partituras
+                y análisis de su escritura pianística dentro del sexteto.
+              </p>
+            </div>
+            <div className="disco-card">
+              <h3>Música popular</h3>
+              <ul className="disco-list">
+                {discografia.popular.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+              <p className="disco-note">
+                Cada ítem podría enlazar a plataformas de audio, videos de TV o
+                registros en vivo, a medida que se encuentren o digitalicen.
+              </p>
+            </div>
+            <div className="disco-card">
+              <h3>Música docta</h3>
+              <ul className="disco-list">
+                {discografia.docta.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+              <p className="disco-note">
+                Un espacio para ir subiendo partituras, grabaciones de orquesta
+                y notas analíticas sobre su producción tardía.
+              </p>
+            </div>
+          </div>
+          <div className="quote-block">
+            <strong>Referencias</strong>
+            <ul>
+              <li>
+                Vásquez, Luciano, y Sebastián Valladares.{" "}
+                <em>“La Paz y la Guerra”: Informe final</em>. Universidad de
+                Chile, 2025.
+              </li>
+              <li>
+                <em>Camotazo</em>. Casete militante, ca. 1988.
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // ------ RECURSOS / CRÉDITOS ------
+
+    function RecursosPage({ goBack }) {
+      return (
+        <div className="page">
+          <div className="back-row">
+            <button className="back-btn" onClick={goBack}>
+              ⬅ Volver a las esferas
+            </button>
+          </div>
+          <h2 className="page-title">Recursos / Créditos</h2>
+          <div className="recursos-grid">
+            <div>
+              <div className="rec-block-title">Bibliografía y fuentes</div>
+              <ul className="rec-list">
+                <li>
+                  Vásquez, Luciano, y Sebastián Valladares.{" "}
+                  <em>“La Paz y la Guerra”: Informe final</em>. Universidad de
+                  Chile, 2025.
+                </li>
+                <li>
+                  Entrevistas y testimonios de familiares, músicos y cercanxs a
+                  Nino García.
+                </li>
+                <li>
+                  Material fonográfico: casete{" "}
+                  <em>Camotazo</em>, grabaciones de TV, registros de conciertos
+                  y homenajes.
+                </li>
+                <li>
+                  Documentos de contexto: prensa de la época, estudios sobre
+                  dictadura, universidad intervenida y cultura de resistencia.
+                </li>
+              </ul>
+              <p className="rec-meta">
+                Más adelante se pueden agregar referencias en formato académico
+                más detallado (MLA, APA, etc.) y enlaces a documentos
+                específicos.
+              </p>
+            </div>
+            <div>
+              <div className="rec-block-title">Autores y agradecimientos</div>
+              <ul className="rec-list">
+                <li>Idea general: Luciano Vásquez y Sebastián Valladares.</li>
+                <li>
+                  Docencia y guía: Dr. Cristián Guerra (Taller de Investigación
+                  y Análisis, Teoría de la Música, Universidad de Chile).
+                </li>
+                <li>
+                  Agradecimientos a las personas y archivos que han trabajado en
+                  el rescate de la obra de Nino García.
+                </li>
+              </ul>
+              <p className="rec-meta">
+                Esta app es un prototipo navegable, pensado para crecer en
+                paralelo al trabajo de archivo, análisis y difusión.
+              </p>
+            </div>
+          </div>
+          <div className="quote-block">
+            <strong>Referencias</strong>
+            <ul>
+              <li>
+                Vásquez, Luciano, y Sebastián Valladares.{" "}
+                <em>“La Paz y la Guerra”: Informe final</em>. Universidad de
+                Chile, 2025.
+              </li>
+              <li>
+                “Inolvidables (2002).” <em>13.cl</em>, Canal 13,{" "}
+                <a
+                  href="https://www.13.cl/rec/blog/inolvidables-2002"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#93c5fd" }}
+                >
+                  www.13.cl/rec/blog/inolvidables-2002
+                </a>
+                .
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================
+    // App principal
+    // =========================
+
+    function App() {
+      const [page, setPage] = React.useState("intro");
+
+      let content = null;
+      if (page === "intro") {
+        content = <InicioPage goToMap={() => setPage("mapa")} />;
+      } else if (page === "mapa") {
+        content = <MapaPage goToSection={(section) => setPage(section)} />;
+      } else if (page === "bio") {
+        content = <BioPage goBack={() => setPage("mapa")} />;
+      } else if (page === "obra") {
+        content = <ObraPage goBack={() => setPage("mapa")} />;
+      } else if (page === "disco") {
+        content = <DiscografiaPage goBack={() => setPage("mapa")} />;
+      } else if (page === "recursos") {
+        content = <RecursosPage goBack={() => setPage("mapa")} />;
+      }
+
+      return (
+        <div className="app">
+          <header>
+            <div className="header-left">
+              <div className="logo-square">
+                <span>🎵</span>
+              </div>
+              <div className="header-text">
+                <h1>Nino García · Menú interactivo</h1>
+                <p>
+                  Mostrar la vida y obra de Nino García de forma interactiva
+                  para estudiantes de música y público curioso.
+                </p>
+              </div>
+            </div>
+            <BackgroundAudio />
+          </header>
+
+          <main>{content}</main>
+
+          <footer>
+            <div className="status">
+              <span className="dot" />
+              <span>HTML + React + Babel · Vista completa</span>
+            </div>
+            <div>
+              Estética retro/pixel sobre fondo oscuro, lista para seguir
+              ampliando contenido.
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
